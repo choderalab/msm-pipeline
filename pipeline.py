@@ -93,13 +93,14 @@ def write_pdbs_of_clusters(source,msm,project_name,n_samples=10,max_states=100):
         pyemma.coordinates.save_traj(source,samples[i],'{0}_state_{1}.pdb'.format(project_name,i))
 
 if __name__ == '__main__':
+    import sys
+    path_to_trajs = sys.argv[1]
 
     def get_filenames(path_to_trajs):
         from glob import glob
         filenames = glob(path_to_trajs)
         return filenames
 
-    #path_to_trajs = '/Users/joshuafass/Downloads/abl_snapshot/abl_snapshot/run0-clone*2.h5'
     fnames = get_filenames(path_to_trajs)
     print(fnames)
 
