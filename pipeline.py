@@ -65,12 +65,17 @@ def run_pipeline(fnames,
     # save outputs
     np.save('{0}_dtrajs.npy'.format(project_name),dtrajs)
     np.save('{0}_tica_projection.npy'.format(project_name),Y)
-    cPickle.dump(tica, '{0}_tica_model.pkl'.format(project_name))
-    cPickle.dump(kmeans, '{0}_kmeans_model.pkl'.format(project_name))
+
+    with open('{0}_tica_model.pkl'.format(project_name),'w') as f:
+        cPickle.dump(tica, f)
+
+    with open('{0}_kmeans_model.pkl'.format(project_name),'w') as f:
+        cPickle.dump(kmeans, f)
 
     # create and save file index, for later use:
     file_index = dict(zip(source.trajfiles,source.trajectory_lengths()))
-    cPickle.dump(file_index, '{0}_file_index.pkl'.format(project_name))
+    with open('{0}_file_index.pkl'.format(project_name),'w') as f:
+        cPickle.dump(file_index, f)
 
     source_full = pyemma.coordinates.source(fnames,top=top)
     msm = pyemma.msm.estimate_markov_model(dtrajs,lag=msm_lag)
