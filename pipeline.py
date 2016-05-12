@@ -2,6 +2,8 @@ import mdtraj as md
 import cPickle
 import numpy as np
 import numpy.random as npr
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import pyemma
 
@@ -85,7 +87,7 @@ def run_pipeline(fnames,
     make_plots(dtrajs,tica,tica_output=Y,msm=msm,project_name=project_name)
 
 def write_pdbs_of_clusters(source,msm,project_name,n_samples=10,max_states=100):
-    samples = m.sample_by_state(n_samples)
+    samples = msm.sample_by_state(n_samples)
     n_states = len(msm.stationary_distribution)
 
     # only take the top-max_states clusters
