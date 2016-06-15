@@ -3,8 +3,8 @@ We have a large amount of simulation data from many related systems. Instead of 
 
 ## Pipeline outline in one line
 Trajectories --> discrete trajectories --> statistics
-`python pipeline.py  /cbio/jclab/projects/fah/fah-data/munged-with-time/no-solvent/11400/run0-clon
-e0.h5
+
+`python pipeline.py  /cbio/jclab/projects/fah/fah-data/munged-with-time/no-solvent/11400/run0-clone0.h5`
 
 ## Details
 1. **Inputs**:
