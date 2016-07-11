@@ -68,11 +68,11 @@ def run_pipeline(fnames,
     np.save('{0}_dtrajs.npy'.format(project_name),dtrajs)
     np.save('{0}_tica_projection.npy'.format(project_name),Y)
 
-    with open('{0}_tica_model.pkl'.format(project_name),'w') as f:
-        cPickle.dump(tica, f)
+    #with open('{0}_tica_model.pkl'.format(project_name),'w') as f:
+    #    cPickle.dump(tica, f)
 
-    with open('{0}_kmeans_model.pkl'.format(project_name),'w') as f:
-        cPickle.dump(kmeans, f)
+    #with open('{0}_kmeans_model.pkl'.format(project_name),'w') as f:
+    #    cPickle.dump(kmeans, f)
 
     # create and save file index, for later use:
     file_index = dict(zip(source.trajfiles,source.trajectory_lengths()))
@@ -111,4 +111,4 @@ if __name__ == '__main__':
     fnames = get_filenames(path_to_trajs)
     print(fnames)
 
-    run_pipeline(fnames,project_name='abl')
+    run_pipeline(fnames,project_name='mTORKinase')
