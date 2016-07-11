@@ -14,7 +14,7 @@
 #
 # nodes: number of nodes
 #   ppn: number of processes per node
-#PBS -l nodes=1:ppn=1
+#PBS -l nodes=1:ppn=1:mem=10G
 #
 # specify memory
 #
@@ -43,6 +43,7 @@
 
 # Change to working directory used for job submission
 cd $PBS_O_WORKDIR
+source activate py27
 
 # Launch job.
 python pipeline.py /cbio/jclab/home/albaness/trajectories/10493/*.h5
