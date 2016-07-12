@@ -84,7 +84,7 @@ def run_pipeline(fnames,
     write_pdbs_of_clusters(source_full,msm,project_name)
 
     from generate_report import make_plots
-    make_plots(dtrajs,tica,tica_output=Y,msm=msm,project_name=project_name)
+    make_plots(dtrajs, tica, tica_output=Y, msm=msm, project_name=project_name)
 
 def write_pdbs_of_clusters(source,msm,project_name,n_samples=10,max_states=100):
     samples = msm.sample_by_state(n_samples)
