@@ -100,7 +100,8 @@ def write_pdbs_of_clusters(source,msm,project_name,n_samples=10,max_states=100):
         pyemma.coordinates.save_traj(source,samples[i],'{0}_state_{1}.pdb'.format(project_name,i))
 
 if __name__ == '__main__':
-    path_to_trajs = '/cbio/jclab/home/albaness/trajectories/10493/*.h5'
+    import sys
+    path_to_trajs = sys.argv[1]
 
     def get_filenames(path_to_trajs):
         from glob import glob
