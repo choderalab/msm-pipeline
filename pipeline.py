@@ -61,7 +61,7 @@ def run_pipeline(fnames,
          Y = [y[:,:max_tics] for y in Y]
 
     # discretize
-    kmeans = pyemma.coordinates.cluster_mini_batch_kmeans(Y,k=n_clusters,max_iter=500)
+    kmeans = pyemma.coordinates.cluster_mini_batch_kmeans(Y,k=n_clusters,max_iter=1000)
     dtrajs = [dtraj.flatten() for dtraj in kmeans.get_output()]
 
     # save outputs
