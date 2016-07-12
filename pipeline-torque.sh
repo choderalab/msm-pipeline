@@ -18,7 +18,7 @@
 #
 # specify memory
 #
-#PBS -l mem=4G
+#PBS -l mem=200G
 #
 # export all my environment variables to the job
 #PBS -V
@@ -43,7 +43,7 @@
 
 # Change to working directory used for job submission
 cd $PBS_O_WORKDIR
-source activate py27
+#source activate py27
 
 # Launch job.
 python pipeline.py /cbio/jclab/home/albaness/trajectories/10493/*.h5
