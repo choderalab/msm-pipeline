@@ -75,7 +75,7 @@ def plot_trajectory_length_histogram(dtrajs,project_name):
 
 def plot_timescales(msm,project_name):
     plt.figure()
-    plt.plot(m.timescales()/4,'.')
+    plt.plot(msm.timescales()/4,'.')
     plt.xlabel('Timescale index')
     plt.ylabel('Timescale (ns)')
     plt.title('{0}: Timescales'.format(project_name))
