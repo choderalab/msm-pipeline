@@ -46,4 +46,4 @@ cd $PBS_O_WORKDIR
 source activate py27
 
 # Launch job.
-python make_figures.py
+python pipeline.py '/cbio//cbio/jclab/home/albaness/trajectories/10493'
