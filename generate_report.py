@@ -9,7 +9,7 @@ def make_plots(dtrajs,tica_output,msm,project_name):
     plot_trajectory_length_histogram(dtrajs,project_name)
 
     # make tICA plots
-    #inspect_tica(tica,project_name)
+    inspect_tica(tica,project_name)
     plot_tics(tica_output,n_tics=10,project_name=project_name)
 
     # make MSM plots
