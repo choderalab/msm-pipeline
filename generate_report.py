@@ -22,7 +22,7 @@ def make_plots(dtrajs,tica_output,msm,project_name):
     hmm = msm.coarse_grain(n_states)
 
     # make HMM plots
-    plot_free_energies(hmm)
+    plot_free_energies(hmm, project_name)
 
     # sample from macrostates
     # to-do!
