@@ -97,7 +97,7 @@ def compute_its(dtrajs,project_name):
 def estimate_n_macrostates(msm,metastability_threshold=400):
     return sum(msm.timescales()>metastability_threshold)
 
-def plot_free_energies(cg_model):
+def plot_free_energies(cg_model, project_name):
     f_i = -np.log(sorted(cg_model.stationary_distribution))[::-1]
     f_i -= f_i.min()
     plt.figure()

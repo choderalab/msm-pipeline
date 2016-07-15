@@ -15,7 +15,6 @@ max_tics = 500
 dtrajs = np.load('mtor/mTORKinase_dtrajs.npy')
 dtrajs = [dtraj for dtraj in dtrajs]
 Y = np.load('mtor/mTORKinase_tica_projection.npy')
-project_name = 'mTORKinase'
 msm = pyemma.msm.estimate_markov_model(dtrajs, lag=msm_lag)
 
 
