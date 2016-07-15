@@ -10,6 +10,7 @@ import pyemma
 from generate_report import make_plots
 
 msm_lag=50
+project_name = 'mTORKinase'
 max_tics = 500
 dtrajs = np.load('mtor/mTORKinase_dtrajs.npy')
 dtrajs = [dtraj for dtraj in dtrajs]
