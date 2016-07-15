@@ -4,7 +4,7 @@ import matplotlib
 matplotlib.use('Agg')
 import numpy as np
 
-def make_plots(dtrajs,tica,tica_output,msm,project_name):
+def make_plots(dtrajs,tica_output,msm,project_name):
     # make initial plots
     plot_trajectory_length_histogram(dtrajs,project_name)
 
@@ -13,7 +13,7 @@ def make_plots(dtrajs,tica,tica_output,msm,project_name):
     plot_tics(tica_output,n_tics=10,project_name=project_name)
 
     # make MSM plots
-    plot_sanity_check(msm)
+    plot_sanity_check(msm,project_name)
     compute_its(dtrajs,project_name)
     plot_timescales(msm,project_name)
 
@@ -22,7 +22,7 @@ def make_plots(dtrajs,tica,tica_output,msm,project_name):
     hmm = msm.coarse_grain(n_states)
 
     # make HMM plots
-    plot_free_energies(hmm)
+    plot_free_energies(hmm, project_name)
 
     # sample from macrostates
     # to-do!
@@ -49,7 +49,7 @@ def plot_tics(Y,n_tics,project_name):
     plt.savefig('{0}_tica_projection.jpg'.format(project_name),dpi=300)
     plt.close()
 
-def plot_sanity_check(msm):
+def plot_sanity_check(msm, project_name):
     ''' Plot stationary distribution vs. counts'''
     statdist = msm.stationary_distribution
     relative_counts = msm.count_matrix_active.sum(0)/np.sum(msm.count_matrix_active)
@@ -58,7 +58,7 @@ def plot_sanity_check(msm):
     plt.scatter(statdist,relative_counts)
     plt.xlabel('MSM stationary distribution')
     plt.ylabel('Relative counts')
-    plt.savefig('{0}_sanity_check.jpg'.format(project_name),dpi=300)
+    plt.savefig('{0}_sanity_check.jpg'.format(project_name), dpi=300)
     plt.close()
 
 def plot_trajectory_length_histogram(dtrajs,project_name):
@@ -75,7 +75,7 @@ def plot_trajectory_length_histogram(dtrajs,project_name):
 
 def plot_timescales(msm,project_name):
     plt.figure()
-    plt.plot(m.timescales()/4,'.')
+    plt.plot(msm.timescales()/4,'.')
     plt.xlabel('Timescale index')
     plt.ylabel('Timescale (ns)')
     plt.title('{0}: Timescales'.format(project_name))
@@ -97,7 +97,7 @@ def compute_its(dtrajs,project_name):
 def estimate_n_macrostates(msm,metastability_threshold=400):
     return sum(msm.timescales()>metastability_threshold)
 
-def plot_free_energies(cg_model):
+def plot_free_energies(cg_model, project_name):
     f_i = -np.log(sorted(cg_model.stationary_distribution))[::-1]
     f_i -= f_i.min()
     plt.figure()

@@ -61,18 +61,18 @@ def run_pipeline(fnames,
          Y = [y[:,:max_tics] for y in Y]
 
     # discretize
-    kmeans = pyemma.coordinates.cluster_mini_batch_kmeans(Y,k=n_clusters,max_iter=500)
+    kmeans = pyemma.coordinates.cluster_mini_batch_kmeans(Y,k=n_clusters,max_iter=1000)
     dtrajs = [dtraj.flatten() for dtraj in kmeans.get_output()]
 
     # save outputs
     np.save('{0}_dtrajs.npy'.format(project_name),dtrajs)
     np.save('{0}_tica_projection.npy'.format(project_name),Y)
 
-    with open('{0}_tica_model.pkl'.format(project_name),'w') as f:
-        cPickle.dump(tica, f)
+    #with open('{0}_tica_model.pkl'.format(project_name),'w') as f:
+    #    cPickle.dump(tica, f)
 
-    with open('{0}_kmeans_model.pkl'.format(project_name),'w') as f:
-        cPickle.dump(kmeans, f)
+    #with open('{0}_kmeans_model.pkl'.format(project_name),'w') as f:
+    #    cPickle.dump(kmeans, f)
 
     # create and save file index, for later use:
     file_index = dict(zip(source.trajfiles,source.trajectory_lengths()))
@@ -84,7 +84,7 @@ def run_pipeline(fnames,
     write_pdbs_of_clusters(source_full,msm,project_name)
 
     from generate_report import make_plots
-    make_plots(dtrajs,tica,tica_output=Y,msm=msm,project_name=project_name)
+    make_plots(dtrajs, tica, tica_output=Y, msm=msm, project_name=project_name)
 
 def write_pdbs_of_clusters(source,msm,project_name,n_samples=10,max_states=100):
     samples = msm.sample_by_state(n_samples)
@@ -107,8 +107,9 @@ if __name__ == '__main__':
         from glob import glob
         filenames = glob(path_to_trajs)
         return filenames
-
+    print(path_to_trajs)
     fnames = get_filenames(path_to_trajs)
     print(fnames)
 
-    run_pipeline(fnames,project_name='abl')
+    print('Running pipeline')
+    run_pipeline(fnames,project_name='mTORKinase')
