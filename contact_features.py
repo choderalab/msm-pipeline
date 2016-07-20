@@ -7,15 +7,32 @@ def find_respairs_that_changed(fnames,
                                stride = 100,
                                max_respairs = 1000):
     '''
-
+    Finds all the residue pairs that crossed `threshold` at least once in a strided subset of 
+    trajectory data. If that number of features is still too high, just take the top `max_respairs`
+    most frequently threshold-crossing residue pairs.
+    
     Parameters
     ----------
-    fnames : list of paths to trajectories
+    fnames : list of strings
+        paths to trajectories
 
-    scheme : 'ca' or 'closest' or 'closest-heavy'
+    scheme : string
+        how to define the distance between two residues.
+        'ca' or 'closest' or 'closest-heavy' (alpha-carbon, closest atom, or closest heavy atom)
 
     threshold : float
         contact threshold (nm)
+    
+    stride : int
+        thinning factor: only look at every `stride`th frame
+        
+    max_respairs : int
+        maximum number of features to return
+    
+    Returns
+    -------
+    respairs_that_changed : list of tuples
+        each element of the list is a length-2 tuple
     '''
     distances = []
     for fname in fnames:
