@@ -4,7 +4,7 @@ import matplotlib
 matplotlib.use('Agg')
 import numpy as np
 
-def make_plots(dtrajs,tica_output,msm,project_name):
+def make_plots(dtrajs,tica, tica_output,msm,project_name):
     # make initial plots
     plot_trajectory_length_histogram(dtrajs,project_name)
 
