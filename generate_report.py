@@ -4,7 +4,7 @@ import matplotlib
 matplotlib.use('Agg')
 import numpy as np
 
-def make_plots(dtrajs, tica_output, msm, project_name):
+def make_plots(dtrajs, tica, tica_output, msm, project_name):
     '''
     Plots diagnostics and sanity-check figures.
     
