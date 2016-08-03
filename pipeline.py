@@ -172,7 +172,10 @@ def write_pdbs_of_clusters(source, msm, project_name, n_samples=10, max_states=1
 if __name__ == '__main__':
     import sys
     path_to_trajs = sys.argv[1]
-    project_name = sys.argv[2]
+    if len(sys.argv) > 2:
+        project_name = sys.argv[2]
+    else:
+        project_name = 'abl'
 
     def get_filenames(path_to_trajs):
         from glob import glob
