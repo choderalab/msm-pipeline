@@ -6,6 +6,10 @@ Trajectories --> discrete trajectories --> statistics
 
 `python pipeline.py  /cbio/jclab/projects/fah/fah-data/munged-with-time/no-solvent/11400/run0-clone0.h5`
 
+Default `project_name` is 'abl', otherwise add project name in second argument:
+
+`python pipeline.py  /cbio/jclab/projects/fah/fah-data/munged-with-time/no-solvent/11400/run0-clone0.h5 'abl'`
+
 ## Details
 1. **Inputs**:
    - List of filenames of munged hdf5 trajectories
