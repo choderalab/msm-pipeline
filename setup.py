@@ -1,174 +1,197 @@
-"""
-Sensible defaults for MSMs.
-"""
-
-from __future__ import print_function
-
-DOCLINES = __doc__.split("\n")
-
+import logging as log
 import os
+import re
 import sys
-import shutil
-import tempfile
-import subprocess
-import versioneer
-from distutils.ccompiler import new_compiler
+from copy import copy
+from tempfile import gettempdir
 
-try:
-    from setuptools import setup, Extension
-except ImportError:
-    from distutils.core import setup, Extension
+from setuptools import setup
 
-CLASSIFIERS = """\
-Development Status :: 3 - Alpha
-Intended Audience :: Science/Research
-Intended Audience :: Developers
-License :: OSI Approved :: GNU Lesser General Public License v2 or later (LGPLv2+)
-Programming Language :: C
-Programming Language :: Python
-Programming Language :: Python :: 3
-Topic :: Scientific/Engineering :: Bio-Informatics
-Topic :: Scientific/Engineering :: Chemistry
-Operating System :: Microsoft :: Windows
-Operating System :: POSIX
-Operating System :: Unix
-Operating System :: MacOS
-"""
+DESCRIPTION = ("Sensible defaults for MSMs")
+MODULE_PATH = os.path.join(os.path.dirname(__file__), "msmpipeline/pipeline.py")
+REQUIREMENTS_FILE = os.path.join(os.path.dirname(__file__), "requirements.txt")
 
-from pip.req import parse_requirements
+with open(str(MODULE_PATH), encoding="utf-8-sig") as source_code_file:
+    SOURCE = source_code_file.read()
 
-# parse_requirements() returns generator of pip.req.InstallRequirement objects
-install_reqs = parse_requirements('requirements.txt', session=False)
-
-# reqs is a list of requirement
-# e.g. ['django==1.5.1', 'mezzanine==1.4.6']
-reqs = [str(ir.req) for ir in install_reqs]
-
-def find_packages():
-    """Find all of msmpipeline's python packages.
-    Adapted from FAHmunge's setup.py, which is adapted from from IPython's setupbase.py.
-    Copyright IPython contributors, licensed under the BSD license.
-    """
-    packages = []
-    for dir,subdirs,files in os.walk('msmpipeline'):
-        package = dir.replace(os.path.sep, '.')
-        if '__init__.py' not in files:
-            # not a package
-            continue
-        packages.append(package.replace('msmpipeline', 'msmpipeline'))
-    return packages
-
-
-################################################################################
-# Writing version control information to the module
-################################################################################
-
-def git_version():
-    # Return the git revision as a string
-    # copied from numpy setup.py
-    def _minimal_ext_cmd(cmd):
-        # construct minimal environment
-        env = {}
-        for k in ['SYSTEMROOT', 'PATH']:
-            v = os.environ.get(k)
-            if v is not None:
-                env[k] = v
-        # LANGUAGE is used on win32
-        env['LANGUAGE'] = 'C'
-        env['LANG'] = 'C'
-        env['LC_ALL'] = 'C'
-        out = subprocess.Popen(
-            cmd, stdout=subprocess.PIPE, env=env).communicate()[0]
-        return out
-
-    try:
-        out = _minimal_ext_cmd(['git', 'rev-parse', 'HEAD'])
-        GIT_REVISION = out.strip().decode('ascii')
-    except OSError:
-        GIT_REVISION = 'Unknown'
-
-    return GIT_REVISION
-
-
-def write_version_py(filename='msmpipeline/version.py'):
-    cnt = """
-# THIS FILE IS GENERATED FROM msmpipeline SETUP.PY
-short_version = '%(version)s'
-version = '%(version)s'
-full_version = '%(full_version)s'
-git_revision = '%(git_revision)s'
-release = %(isrelease)s
-
-if not release:
-    version = full_version
-"""
-    # Adding the git rev number needs to be done inside write_version_py(),
-    # otherwise the import of numpy.version messes up the build under Python 3.
-    FULLVERSION = VERSION
-    if os.path.exists('.git'):
-        GIT_REVISION = git_version()
+def make_logger(name=str(os.getpid())):
+    """Build and return a Logging Logger."""
+    if not sys.platform.startswith("win") and sys.stderr.isatty():
+        def add_color_emit_ansi(fn):
+            """Add methods we need to the class."""
+            def new(*args):
+                """Method overload."""
+                if len(args) == 2:
+                    new_args = (args[0], copy(args[1]))
+                else:
+                    new_args = (args[0], copy(args[1]), args[2:])
+                if hasattr(args[0], 'baseFilename'):
+                    return fn(*args)
+                levelno = new_args[1].levelno
+                if levelno >= 50:
+                    color = '\x1b[31;5;7m\n '  # blinking red with black
+                elif levelno >= 40:
+                    color = '\x1b[31m'  # red
+                elif levelno >= 30:
+                    color = '\x1b[33m'  # yellow
+                elif levelno >= 20:
+                    color = '\x1b[32m'  # green
+                elif levelno >= 10:
+                    color = '\x1b[35m'  # pink
+                else:
+                    color = '\x1b[0m'  # normal
+                try:
+                    new_args[1].msg = color + str(new_args[1].msg) + ' \x1b[0m'
+                except Exception as reason:
+                    print(reason)  # Do not use log here.
+                return fn(*new_args)
+            return new
+        # all non-Windows platforms support ANSI Colors so we use them
+        log.StreamHandler.emit = add_color_emit_ansi(log.StreamHandler.emit)
     else:
-        GIT_REVISION = 'Unknown'
-
-    if not ISRELEASED:
-        FULLVERSION += '.dev-' + GIT_REVISION[:7]
-
-    a = open(filename, 'w')
+        log.debug("Colored Logs not supported on {0}.".format(sys.platform))
+    log_file = os.path.join(gettempdir(), str(name).lower().strip() + ".log")
+    log.basicConfig(level=-1, filemode="w", filename=log_file,
+                    format="%(levelname)s:%(asctime)s %(message)s %(lineno)s")
+    log.getLogger().addHandler(log.StreamHandler(sys.stderr))
+    adrs = "/dev/log" if sys.platform.startswith("lin") else "/var/run/syslog"
     try:
-        a.write(cnt % {'version': VERSION,
-                       'full_version': FULLVERSION,
-                       'git_revision': GIT_REVISION,
-                       'isrelease': str(ISRELEASED)})
-    finally:
-        a.close()
+        handler = log.handlers.SysLogHandler(address=adrs)
+    except Exception:
+        log.warning("Unix SysLog Server not found,ignored Logging to SysLog.")
+    else:
+        log.addHandler(handler)
+    log.debug("Logger created with Log file at: {0}.".format(log_file))
+    return log
 
-setup_kwargs = {}
 
-from distutils.command.clean import clean as Clean
-class CleanCommand(Clean):
-    """python setup.py clean
+# Should be all UTF-8 for best results
+def make_root_check_and_encoding_debug():
+    """Debug and Log Encodings and Check for root/administrator,return Boolean.
+    >>> make_root_check_and_encoding_debug()
+    True
     """
-    # lightly adapted from scikit-learn package
-    # adapted again from parmed
-    description = "Remove build artifacts from the source tree"
+    log.info(__doc__)
+    log.debug("STDIN Encoding: {0}.".format(sys.stdin.encoding))
+    log.debug("STDERR Encoding: {0}.".format(sys.stderr.encoding))
+    log.debug("STDOUT Encoding:{}".format(getattr(sys.stdout, "encoding", "")))
+    log.debug("Default Encoding: {0}.".format(sys.getdefaultencoding()))
+    log.debug("FileSystem Encoding: {0}.".format(sys.getfilesystemencoding()))
+    log.debug("PYTHONIOENCODING Encoding: {0}.".format(
+        os.environ.get("PYTHONIOENCODING", None)))
+    os.environ["PYTHONIOENCODING"] = "utf-8"
+    if not sys.platform.startswith("win"):  # root check
+        if not os.geteuid():
+            log.critical("Runing as root is not Recommended,NOT Run as root!.")
+            return False
+    return True
 
-    def _clean(self, folder):
-        for dirpath, dirnames, filenames in os.walk(folder):
-            for filename in filenames:
-                if (filename.endswith('.so') or filename.endswith('.pyd')
-                        or filename.endswith('.dll')
-                        or filename.endswith('.pyc')):
-                    os.unlink(os.path.join(dirpath, filename))
-            for dirname in dirnames:
-                if dirname == '__pycache__':
-                    shutil.rmtree(os.path.join(dirpath, dirname))
 
-    def run(self):
-        Clean.run(self)
-        if os.path.exists('build'):
-            shutil.rmtree('build')
-        self._clean('msmpipeline')
-        self._clean('test')
-cmdclass = dict(clean=CleanCommand)
-cmdclass.update(versioneer.get_cmdclass())
+def set_process_name_and_cpu_priority():
+    """Set process name and cpu priority.
+    >>> set_process_name_and_cpu_priority("test_test")
+    True
+    """
+    try:
+        os.nice(19)  # smooth cpu priority
+        return True
+    except Exception:
+        return False  # this may fail on windows and its normal, so be silent.
 
-setup(name='msmpipeline',
-      author='Sonya Hanson, Steven Albanese, Josh Fass',
-      author_email='{sonya.hanson, steven.albanese, josh.fass}@choderalab.org',
-      zip_safe=False,
-      description=DOCLINES[0],
-      long_description="\n".join(DOCLINES[2:]),
-      version=versioneer.get_version(),
-      license='LGPLv2.1+',
-      download_url = "https://github.com/choderalab/msm-pipeline",
-      platforms=['Linux'],
-      classifiers=CLASSIFIERS.splitlines(),
-      packages=["msmpipeline"],
-      package_dir={'msmpipeline': 'msmpipeline'},
-      entry_points={
-        'console_scripts' : [
-            'munge-fah-data = msmpipeline.cli:main',
-        ]
-      },
-      install_requires=reqs,
-      **setup_kwargs)
+
+def find_this(search, source=SOURCE):
+    """Take a string and a filename path string and return the found value."""
+    log.debug("Searching for {what}.".format(what=search))
+    if not search or not source:
+        log.warning("Not found on source: {what}.".format(what=search))
+        return ""
+    return str(re.compile(r".*__{what}__ = '(.*?)'".format(
+        what=search), re.S).match(source).group(1)).strip().replace("'", "")
+
+
+def parse_requirements(path=REQUIREMENTS_FILE):
+    """Rudimentary parser for the requirements.txt file.
+    We just want to separate regular packages from links to pass them to the
+    'install_requires' and 'dependency_links' params of the 'setup()'.
+    """
+    log.debug("Parsing Requirements from file {what}.".format(what=path))
+    pkgs, links = ["pip"], []
+    if not os.path.isfile(path):
+        return pkgs, links
+    try:
+        requirements = map(str.strip, path.splitlines())
+    except Exception as reason:
+        log.warning(reason)
+        return pkgs, links
+    for req in requirements:
+        if not req:
+            continue
+        if 'http://' in req.lower() or 'https://' in req.lower():
+            links.append(req)
+            name, version = re.findall("\#egg=([^\-]+)-(.+$)", req)[0]
+            pkgs.append('{package}=={ver}'.format(package=name, ver=version))
+        else:
+            pkgs.append(req)
+    log.debug("Requirements found: {what}.".format(what=(pkgs, links)))
+    return pkgs, links
+
+
+make_logger()
+make_root_check_and_encoding_debug()
+set_process_name_and_cpu_priority()
+install_requires_list, dependency_links_list = parse_requirements()
+log.info("Starting build of setuptools.setup().")
+
+
+setup(
+
+    name="msmpipeline",
+    version=versioneer.get_version(),
+
+    description=DESCRIPTION,
+    long_description=DESCRIPTION,
+
+    url="https://github.com/choderalab/msm-pipeline",
+    license="LGPLv3+",
+
+    author="Sonya Hanson, Steven Albanese, Josh Fass",
+    author_email="{sonya.hanson, steven.albanese, josh.fass}@choderalab.org",
+
+    include_package_data=True,
+    zip_safe=True,
+
+    extras_require={"pip": ["pip"]},
+    tests_require=['pip'],
+    requires=['pip'],
+
+    install_requires=install_requires_list,
+    dependency_links=dependency_links_list,
+
+    scripts=["msmpipeline/pipeline.py"],
+
+    keywords=['Some', 'KeyWords', 'Here'],
+
+    classifiers=[
+
+        'Development Status :: 3 - Alpha',
+
+        'Intended Audience :: Developers',
+        'Intended Audience :: Science/Research',
+
+        'Natural Language :: English',
+
+        'License :: OSI Approved :: GNU Lesser General Public License v3 or later (LGPLv3+)',
+
+        'Operating System :: POSIX :: Linux',
+
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 3',
+
+        'Topic :: Scientific/Engineering :: Bio-Informatics',
+        'Topic :: Scientific/Engineering :: Chemistry',
+
+    ],
+)
+
+
+log.info("Finished build of setuptools.setup().")
