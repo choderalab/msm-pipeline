@@ -1,4 +1,6 @@
 # Standardized MSM pipeline
+[![Build Status](https://travis-ci.org/choderalab/msm-pipeline.svg?branch=master)](https://travis-ci.org/choderalab/msm-pipeline)
+
 We have a large amount of simulation data from many related systems. Instead of selecting a different model-building approach for each system, we would like to select and automate a uniform MSM-building procedure, so that we can more easily compare MSMs.
 
 ## Pipeline outline in one line
