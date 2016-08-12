@@ -28,7 +28,7 @@ def generate_test_instance():
     return dtrajs, tica, tica_output, msm
 
 if __name__ == '__main__':
-    dtrajs,tica,tica_output = generate_test_instance()
+    dtrajs, tica, tica_output, msm = generate_test_instance()
     
     from generate_report import make_plots, compute_its
     compute_its(dtrajs, project_name = 'test')
