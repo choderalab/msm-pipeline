@@ -83,11 +83,15 @@ def run_pipeline(fnames,
         feat.add_dihedrals(atom_indices, cossin = True)
         feat.add_residue_mindist(residue_pairs = respairs_that_changed, scheme = scheme)
 
-    print('Num features: ', len(feat.describe()))
+    n_features = len(feat.describe())
+    print('Num features: ', n_features)
 
     # do featurization + tICA by streaming over size-1000 "chunks"
     source = pyemma.coordinates.source(fnames, features = feat)
     source_full = pyemma.coordinates.source(fnames, top = top)
+    if quick_model:
+        max_tics = 50
+    max_tics = min(max_tics, n_features)
     tica = pyemma.coordinates.tica(lag = 10, kinetic_map = True, dim = max_tics)
     stages = [source, tica]
     pipeline = pyemma.coordinates.pipeline(stages, chunksize = 1000)
