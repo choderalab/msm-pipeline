@@ -27,9 +27,12 @@ def generate_test_instance():
 
     return dtrajs, tica, tica_output, msm
 
-if __name__ == '__main__':
+def main():
     dtrajs, tica, tica_output, msm = generate_test_instance()
     
     from generate_report import make_plots, compute_its
     compute_its(dtrajs, project_name = 'test')
     make_plots(dtrajs, tica, tica_output, msm, project_name = 'test')
+
+if __name__ == '__main__':
+    main()

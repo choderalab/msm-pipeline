@@ -20,41 +20,41 @@ def run_pipeline(fnames,
     '''
     Generates an MSM using sensible defaults. Computes distance-based and angle-based features, turns
     those features into a kinetic distance metric (using tICA), and then clusters w.r.t. that metric.
-    
+
     Then produces a series of plots about the results, saving them to `{project_name}_*.jpg`.
-    
+
     Parameters
     ----------
     fnames : list of strings
       list of paths to trajectories
-    
+
     msm_lag : integer
       lag-time for MSM estimation, in frames
-    
+
     project_name : string
       project name, to use in figure filenames
-    
+
     n_clusters : integer
       number of microstates to use when clustering
-    
+
     d_threshold : float
       distance threshold-- only residue pairs that cross this
       threshold at least once are considered interesting
-    
+
     max_respairs : integer
       maximum number of residue pairs to use when featurizing
-    
+
     max_tics : integer
       maximum number of tICA components to retain
-    
+
     respair_stride : integer
       what thinning fraction to use when performing heuristic
       feature-selection over all possible residue pairs
-    
+
     metastability_threshold : integer
       threshold (in frames) for the metastability of a macrostate--
       used to coarse-grain the resulting MSM
-      
+
     '''
     print('Finding respairs_that_changed...')
     # examine a subset of the data to determine which residue pairs are crossing the threshold
@@ -76,7 +76,7 @@ def run_pipeline(fnames,
     def get_atom_indices(traj, types = ['phi', 'psi', 'omega', 'chi1', 'chi2', 'chi3', 'chi4']):
         '''
         Fetches the atom indices of all dihedral angles.
-        
+
         Returns
         -------
         atom_indices : (n_dihedrals, 4)-array
@@ -136,24 +136,24 @@ def write_pdbs_of_clusters(source, msm, project_name, n_samples=10, max_states=1
     '''
     For each state `i` in the connected set of the `msm`, draw `n_samples` frames
     from that state uniformly at random, and write them out to `{project_name}_state_{i}.pdb`.
-    
+
     If the connected set of the MSM has greater than `max_states` states, only do this for
     the top-`max_states` most populous states.
-    
+
     Parameters
     ----------
     source : pyemma DataSource object
       trajectory source files
-      
+
     msm : pyemma MSM object
       MSM estimated from the source files
-    
+
     project_name : string
       project name, used for naming output files
-    
+
     n_samples : integer
       number of samples to draw from each state
-    
+
     max_states : integer
       maximum number of PDB files to write out
     '''
@@ -169,7 +169,7 @@ def write_pdbs_of_clusters(source, msm, project_name, n_samples=10, max_states=1
     for i in indices:
         pyemma.coordinates.save_traj(source, samples[i], '{0}_state_{1}.pdb'.format(project_name, i))
 
-if __name__ == '__main__':
+def main():
     import sys
     path_to_trajs = sys.argv[1]
     if len(sys.argv) > 2:
@@ -181,10 +181,13 @@ if __name__ == '__main__':
         from glob import glob
         filenames = glob(path_to_trajs)
         return filenames
-    
+
     print(path_to_trajs)
     fnames = get_filenames(path_to_trajs)
     print(fnames)
 
     print('Running pipeline')
     run_pipeline(fnames, project_name = project_name)
+
+if __name__ == '__main__':
+    main()

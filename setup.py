@@ -9,4 +9,10 @@ setup(name='msmpipeline',
       author_email='{sonya.hanson, steven.albanese, josh.fass}@choderalab.org',
       license='MIT',
       packages=['msmpipeline'],
+      entry_points={
+          'console_scripts': [
+              'msm-pipeline = msmpipeline.pipeline:main',
+              'test-report = msmpipeline.test_report_generation:main'
+          ]
+      },
       zip_safe=False)
