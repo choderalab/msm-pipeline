@@ -2,6 +2,8 @@ language: python
 
 install:
   - source devtools/travis-ci/install.sh
+  - pip install -r requirements.txt
+  - python setup.py install
 
 script:
   - test-report
