@@ -112,6 +112,8 @@ def run_pipeline(fnames,
     kmeans = pyemma.coordinates.cluster_mini_batch_kmeans(Y, k = n_clusters, max_iter = 1000)
     dtrajs = [dtraj.flatten() for dtraj in kmeans.get_output()]
 
+    dtrajs, discard_pile = truncate_unassigned(dtrajs)
+
     # save outputs
     np.save('{0}_dtrajs.npy'.format(project_name), dtrajs)
     print('Done discretizing! Total elapsed time: ', time() - t0)
@@ -123,6 +125,9 @@ def run_pipeline(fnames,
     #    cPickle.dump(kmeans, f)
 
     # create and save file index, for later use:
+
+    if len(discard_pile != 0):
+        raise Exception("Some dtrajs had to be discarded! File index should be updated.")
 
     file_index = dict(zip(source.trajfiles, source.trajectory_lengths()))
     with open('{0}_file_index.pkl'.format(project_name), 'w') as f:

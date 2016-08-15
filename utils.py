@@ -53,3 +53,42 @@ def get_atom_indices(traj, types = ['phi', 'psi', 'omega', 'chi1', 'chi2', 'chi3
         atoms,_ = func(traj[0])
         atom_indices.append(atoms)
     return np.vstack(atom_indices)
+
+def truncate_unassigned(dtrajs, unassigned_label = -1):
+    '''
+    Handles an error that sometimes occurs when frames cannot be assigned to
+    cluster labels, causing MSM estimation to fail.
+
+    For each dtraj, truncates it at the first instance of an unassigned_label.
+    If the first element is invalid, discard the whole discrete trajectory.
+
+    Parameters
+    ----------
+    dtrajs : list of integer-valued arrays
+        Discrete trajectories to analyze, possibly containing invalid state labels
+    unassigned_label : integer
+        What label is invalid
+
+    Returns
+    -------
+    safe_dtrajs : list of integer-valued arrays
+        Truncates any dtraj containing an invalid label, discards any trajectory
+        whose first element is invalid.
+        
+    discard_pile : list of integers
+        Indices of any discarded trajectories.
+    '''
+    safe_dtrajs = []
+    discard_pile = []
+
+    for i,dtraj in enumerate(dtrajs):
+        if unassigned_label in set(dtraj):
+            bad_index = np.argmax(dtraj == unassigned_label)
+            if bad_index > 0:
+                safe_dtrajs.append(dtraj[:bad_index])
+            else:
+                discard_pile.append(i)
+                print('Warning! The first element of one of the dtrajs was invalid -- discarding.')
+        else:
+            safe_dtrajs.append(dtraj)
+        return safe_dtrajs, discard_pile
