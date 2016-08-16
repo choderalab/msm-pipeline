@@ -10,6 +10,7 @@ before_install:
   - conda update --yes conda
   - conda install --yes conda-build
   - conda config --add channels omnia
+  - source activate /home/travis/miniconda/envs/_test
 
 install:
   - conda build devtools/conda-recipe
