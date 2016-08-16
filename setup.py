@@ -13,7 +13,7 @@ setup(name='msmpipeline',
           'console_scripts': [
               'msm-pipeline = msmpipeline.pipeline:main',
               'test-report = msmpipeline.test_report_generation:main',
-              'quick_test = msmpipeline.quick_test'
+              'quick_test = msmpipeline.quick_test:test_generate_test_instance'
           ]
       },
       zip_safe=False)
