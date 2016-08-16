@@ -17,6 +17,7 @@ install:
   - conda create --name test-environment python=$TRAVIS_PYTHON_VERSION pyemma msmbuilder
   - source activate test-environment
   - conda build devtools/conda-recipe
+  - python setup.py install
 
 script:
 #  - python msmpipeline/test_report_generation.py
