@@ -13,11 +13,10 @@ requirements:
       - numpy
       - mdtraj
       - pyemma
-      - corner
       - msmbuilder
 
 build:
-   script: $PYTHON setup.py install
+   script: pip install corner && $PYTHON setup.py install
 
 test:
   imports:
