@@ -22,7 +22,7 @@ install:
 script:
 #  - python msmpipeline/test_report_generation.py
   # quick test
-  - python msmpipeline/quick_test.py
+  - quick_test
 
 env:
   matrix:

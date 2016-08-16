@@ -12,7 +12,8 @@ setup(name='msmpipeline',
       entry_points={
           'console_scripts': [
               'msm-pipeline = msmpipeline.pipeline:main',
-              'test-report = msmpipeline.test_report_generation:main'
+              'test-report = msmpipeline.test_report_generation:main',
+              'quick_test = msmpipeline.quick_test'
           ]
       },
       zip_safe=False)
