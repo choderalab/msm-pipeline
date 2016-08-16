@@ -19,7 +19,7 @@ install:
   - conda build devtools/conda-recipe
 
 script:
-  - test-report
+  - python test_report_generation.py
 
 env:
   matrix:
