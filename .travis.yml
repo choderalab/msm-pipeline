@@ -9,6 +9,7 @@ before_install:
   - export PATH="$HOME/miniconda/bin:$PATH"
   - conda update --yes conda
   - conda install --yes conda-build
+  - conda config --add channels
 
 install:
   - conda build devtools/conda-recipe
