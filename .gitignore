@@ -17,3 +17,6 @@ var/
 __pycache__/
 *.py[cod]
 *$py.class
+
+# Ignore test output
+test_*.jpg
