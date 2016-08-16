@@ -51,7 +51,7 @@ def inspect_tica(tica, project_name):
     '''
     Plot the cumulative kinetic variance explained by the tICA model (sum of squared tICA eigenvalues).
 
-    Save figure to '{project_name}_tica_kinetic_variance.jpg'.
+    Save figure to '{project_name}_tica_kinetic_variance.png'.
 
     Parameters
     ----------
@@ -66,14 +66,14 @@ def inspect_tica(tica, project_name):
     plt.xlabel('# tICA eigenvalues')
     plt.ylabel('Cumulative sum of tICA eigenvalues squared')
     plt.title('Cumulative "kinetic variance" explained')
-    plt.savefig('{0}_tica_kinetic_variance.jpg'.format(project_name),dpi=300)
+    plt.savefig('{0}_tica_kinetic_variance.png'.format(project_name),dpi=300)
     plt.close()
 
 def plot_tics(Y, n_tics, project_name):
     '''
     Generate corner plots from tICA projection.
 
-    Save figure to '{project_name}_tica_projection.jpg'.
+    Save figure to '{project_name}_tica_projection.png'.
 
     Parameters
     ----------
@@ -90,7 +90,7 @@ def plot_tics(Y, n_tics, project_name):
     labels = ['tIC{0}'.format(i+1) for i in range(Y_.shape[1])]
     corner.corner(Y_, labels = labels, bins = 50)
     plt.title('Projection onto top-{0} tICs'.format(len(labels)))
-    plt.savefig('{0}_tica_projection.jpg'.format(project_name),dpi=300)
+    plt.savefig('{0}_tica_projection.png'.format(project_name),dpi=300)
     plt.close()
 
 def plot_sanity_check(msm, project_name):
@@ -100,7 +100,7 @@ def plot_sanity_check(msm, project_name):
     How different is this estimate from the raw counts?)
 
 
-    Saves figure to '{project_name}_sanity_check.jpg'.
+    Saves figure to '{project_name}_sanity_check.png'.
 
     Parameters
     ----------
@@ -115,14 +115,14 @@ def plot_sanity_check(msm, project_name):
     plt.scatter(statdist, relative_counts)
     plt.xlabel('MSM stationary distribution')
     plt.ylabel('Relative counts')
-    plt.savefig('{0}_sanity_check.jpg'.format(project_name), dpi = 300)
+    plt.savefig('{0}_sanity_check.png'.format(project_name), dpi = 300)
     plt.close()
 
 def plot_trajectory_length_histogram(dtrajs, project_name):
     '''
     Plots the distribution of trajectory lengths.
 
-    Saves figure to '{project_name}_traj_length_histogram.jpg'.
+    Saves figure to '{project_name}_traj_length_histogram.png'.
 
     Parameters
     ----------
@@ -139,14 +139,14 @@ def plot_trajectory_length_histogram(dtrajs, project_name):
     plt.xlabel('Trajectory length')
     plt.ylabel('Occurrences')
     plt.title('Distribution of trajectory lengths')
-    plt.savefig('{0}_traj_length_histogram.jpg'.format(project_name), dpi = 300)
+    plt.savefig('{0}_traj_length_histogram.png'.format(project_name), dpi = 300)
     plt.close()
 
 def plot_timescales(msm, project_name):
     '''
     Plots the implied timescales from an MSM.
 
-    Saves figure to '{project_name}_timescales.jpg'.
+    Saves figure to '{project_name}_timescales.png'.
 
     Parameters
     ----------
@@ -160,7 +160,7 @@ def plot_timescales(msm, project_name):
     plt.xlabel('Timescale index')
     plt.ylabel('Timescale (ns)')
     plt.title('{0}: Timescales'.format(project_name))
-    plt.savefig('{0}_timescales.jpg'.format(project_name), dpi = 300)
+    plt.savefig('{0}_timescales.png'.format(project_name), dpi = 300)
     plt.close()
 
 def compute_its(dtrajs, project_name):
@@ -170,7 +170,7 @@ def compute_its(dtrajs, project_name):
 
     By default, will produce two figures, one that looks at lags of 1-1000 and one that zooms in on 1-100.
 
-    Saves figures to '{project_name}_its_0.jpg' and '{project_name}_its_1.jpg'
+    Saves figures to '{project_name}_its_0.png' and '{project_name}_its_1.png'
 
     Parameters
     ----------
@@ -189,7 +189,7 @@ def compute_its(dtrajs, project_name):
         its = pyemma.msm.its(dtrajs, lags, nits = 20, errors = 'bayes')
         plt.figure()
         pyemma.plots.plot_implied_timescales(its, units = 'ns', dt = 0.25)
-        plt.savefig('{0}_its_{1}.jpg'.format(project_name,i), dpi = 300)
+        plt.savefig('{0}_its_{1}.png'.format(project_name,i), dpi = 300)
         plt.close()
 
 def estimate_n_macrostates(msm, metastability_threshold=400):
@@ -213,7 +213,7 @@ def plot_free_energies(cg_model, project_name):
     '''
     Given a coarse-grained MSM, plot the relative free energies of each macrostate.
 
-    Saves figure to '{project_name}_macrostate_free_energies.jpg'.
+    Saves figure to '{project_name}_macrostate_free_energies.png'.
 
     Parameters
     ----------
@@ -229,5 +229,5 @@ def plot_free_energies(cg_model, project_name):
     plt.xlabel('Macrostate')
     plt.ylabel(r'$\Delta G$ $(k_B T)$')
     plt.title('Macrostate free energies')
-    plt.savefig('{0}_macrostate_free_energies.jpg'.format(project_name), dpi = 300)
+    plt.savefig('{0}_macrostate_free_energies.png'.format(project_name), dpi = 300)
     plt.close()

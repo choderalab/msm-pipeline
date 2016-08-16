@@ -21,7 +21,7 @@ def run_pipeline(fnames,
     Generates an MSM using sensible defaults. Computes distance-based and angle-based features, turns
     those features into a kinetic distance metric (using tICA), and then clusters w.r.t. that metric.
 
-    Then produces a series of plots about the results, saving them to `{project_name}_*.jpg`.
+    Then produces a series of plots about the results, saving them to `{project_name}_*.png`.
 
     Parameters
     ----------
