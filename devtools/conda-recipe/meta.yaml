@@ -1,5 +1,5 @@
 package:
-   name: msm-pipeline
+   name: msmpipeline
    version: 0.0.1
 
 source:
@@ -14,6 +14,14 @@ requirements:
       - mdtraj
       - pyemma
       - corner
+      - msmbuilder
+
+build:
+   script: $PYTHON setup.py install
+
+test:
+  imports:
+    - msmpipeline
 
 about:
    home: https://github.com/choderalab/msm-pipeline
