@@ -17,6 +17,9 @@ requirements:
 
 build:
    script: $PYTHON setup.py install
+   entry_points:
+      - msm-pipeline = msmpipeline.pipeline:main
+      - test-report = msmpipeline.test_report_generation:main
 
 test:
   imports:
