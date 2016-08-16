@@ -2,6 +2,7 @@ import pyemma
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+import corner
 import numpy as np
 
 def make_plots(dtrajs, tica, tica_output, msm, project_name):
@@ -84,7 +85,6 @@ def plot_tics(Y, n_tics, project_name):
 
     project_name : string
     '''
-    import corner
     plt.figure()
     Y_ = np.vstack(Y)[:,:n_tics]
     labels = ['tIC{0}'.format(i+1) for i in range(Y_.shape[1])]
