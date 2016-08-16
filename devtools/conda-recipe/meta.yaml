@@ -16,7 +16,7 @@ requirements:
       - msmbuilder
 
 build:
-   script: pip install corner && $PYTHON setup.py install
+   script: $PYTHON setup.py install
 
 test:
   imports:
