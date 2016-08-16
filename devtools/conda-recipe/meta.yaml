@@ -9,7 +9,12 @@ requirements:
    build:
       - setuptools
       - python
+      - numpy
+      - mdtraj
+      - pyemma
+      - msmbuilder
    run:
+      - python
       - numpy
       - mdtraj
       - pyemma
