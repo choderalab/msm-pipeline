@@ -15,7 +15,7 @@ install:
   - conda build devtools/conda-recipe
 
 script:
-  - test-report
+  - python msmpipeline/test_report_generation.py
 
 env:
   matrix:
