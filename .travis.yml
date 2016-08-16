@@ -1,5 +1,10 @@
 language: python
 
+python:
+  - "2.7"
+  - "3.4"
+  - "3.5"
+
 notifications:
   email: false
 
@@ -19,7 +24,7 @@ install:
   - conda build devtools/conda-recipe
 
 script:
-  - python test_report_generation.py
+  - python msmpipeline/test_report_generation.py
 
 env:
   matrix:
