@@ -13,7 +13,7 @@ before_install:
   - conda info -a
 
 install:
-  - conda create test-environment
+  - conda create --name test-environment python=$TRAVIS_PYTHON_VERSION pyemma msmbuilder
   - source activate test-environment
   - conda build devtools/conda-recipe
 
