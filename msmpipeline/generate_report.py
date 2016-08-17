@@ -1,6 +1,13 @@
-import matplotlib
-matplotlib.use('Agg')
+import matplotlib as mpl
+mpl.use('Agg')
+import seaborn as sns
+
+from matplotlib.backends.backend_pdf import PdfPages
 import matplotlib.pyplot as plt
+
+#import matplotlib
+#matplotlib.use('Agg')
+#import matplotlib.pyplot as plt
 
 import pyemma
 import corner

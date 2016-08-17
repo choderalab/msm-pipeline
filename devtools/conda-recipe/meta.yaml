@@ -13,12 +13,14 @@ requirements:
       - mdtraj
       - pyemma
       - msmbuilder
+      - seaborn
    run:
       - python
       - numpy
       - mdtraj
       - pyemma
       - msmbuilder
+      - seaborn
 
 build:
    script: pip install corner && $PYTHON setup.py install

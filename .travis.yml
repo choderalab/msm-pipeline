@@ -20,9 +20,8 @@ install:
   - python setup.py install
 
 script:
-#  - python msmpipeline/test_report_generation.py
-  # quick test
   - quick_test
+  - test-report
 
 env:
   matrix:
