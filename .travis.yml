@@ -1,5 +1,5 @@
 language: c
-sudo: false
+sudo: true
 addons:
   apt:
     sources:
@@ -24,10 +24,13 @@ script:
   - conda config --add channels ${ORGNAME}
   # Add omnia dev channels
   - conda config --add channels https://conda.anaconda.org/omnia/label/dev
-  - pip install glob
   - conda build devtools/conda-recipe
   - source activate _test
-  - msm-pipeline "msmpipeline/test_data/alanine_*.h5" "alanine"
+  # get test data
+  - cd msmpipeline/test_data
+  - python msmpipeline/test_data/fetch_alanine.py
+  # run the thingy
+  - msm-pipeline "alanine_*.h5" "alanine" 50
 
 env:
   matrix:

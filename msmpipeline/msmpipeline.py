@@ -1,7 +1,5 @@
 import mdtraj as md
-import cPickle
 import numpy as np
-import numpy.random as npr
 
 import matplotlib as mpl
 mpl.use('Agg')
@@ -167,14 +165,15 @@ def run_pipeline(fnames,
     plt.savefig('{0}_sanity_check.png'.format(project_name), dpi=300)
     plt.close()
 
-
 def main():
     import sys
     path_to_trajs = sys.argv[1]
+    project_name = 'abl'
+    n_clusters = 1000
     if len(sys.argv) > 2:
         project_name = sys.argv[2]
-    else:
-        project_name = 'abl'
+    if len(sys.argv) > 3:
+        n_clusters = int(sys.argv[3])
 
     def get_filenames(path_to_trajs):
         from glob import glob
@@ -186,7 +185,7 @@ def main():
     print(fnames)
 
     print('Running pipeline')
-    run_pipeline(fnames, project_name = project_name)
+    run_pipeline(fnames, project_name = project_name, n_clusters = n_clusters)
 
 if __name__ == '__main__':
     main()

@@ -19,5 +19,7 @@ __pycache__/
 *$py.class
 
 # Ignore test output
-test_*.jpg
-test_*.png
+msmpipeline/test_data/*.pdb
+msmpipeline/test_data/*.h5
+msmpipeline/test_data/*.png
+msmpipeline/test_data/*.npy
