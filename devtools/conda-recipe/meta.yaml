@@ -1,38 +1,36 @@
 package:
-   name: msmpipeline
-   version: 0.0.1
+  name: msmpipeline
+  version: !!str 0.0.1
 
 source:
-   path: ../..
-
-requirements:
-   build:
-      - setuptools
-      - python
-      - numpy
-      - mdtraj
-      - pyemma
-      - msmbuilder
-      - seaborn
-   run:
-      - python
-      - numpy
-      - mdtraj
-      - pyemma
-      - msmbuilder
-      - seaborn
+  path: ../../
 
 build:
-   script: pip install corner && $PYTHON setup.py install
-   entry_points:
-      - msm-pipeline = msmpipeline.pipeline:main
-      - test-report = msmpipeline.test_report_generation:main
-      - quick_test = msmpipeline.quick_test:test_generate_test_instance
+  preserve_egg_dir: True
+  number: 0
+
+requirements:
+  build:
+    - python
+    - setuptools
+    - numpy
+    - mdtraj
+    - matplotlib
+    - pyemma
+    - msmbuilder
+
+  run:
+    - python
+    - numpy
+    - mdtraj
+    - matplotlib
+    - pyemma
+    - msmbuilder
 
 test:
   imports:
     - msmpipeline
 
 about:
-   home: https://github.com/choderalab/msm-pipeline
-   license: GNU Lesser General Public License v2 or later (LGPLv2+)
+  home: https://github.com/choderalab/msm-pipeline
+  license: GNU Lesser General Public License
