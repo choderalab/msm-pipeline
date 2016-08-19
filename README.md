@@ -1,14 +1,16 @@
 # Standardized MSM pipeline
+[![Build Status](https://travis-ci.org/choderalab/msm-pipeline.svg?branch=master)](https://travis-ci.org/choderalab/msm-pipeline)
+
 We have a large amount of simulation data from many related systems. Instead of selecting a different model-building approach for each system, we would like to select and automate a uniform MSM-building procedure, so that we can more easily compare MSMs.
 
 ## Pipeline outline in one line
 Trajectories --> discrete trajectories --> statistics
 
-`python pipeline.py  /cbio/jclab/projects/fah/fah-data/munged-with-time/no-solvent/11400/run0-clone0.h5`
+`msm-pipeline /cbio/jclab/projects/fah/fah-data/munged-with-time/no-solvent/11400/run0-clone0.h5`
 
 Default `project_name` is 'abl', otherwise add project name in second argument:
 
-`python pipeline.py  /cbio/jclab/projects/fah/fah-data/munged-with-time/no-solvent/11400/run0-clone0.h5 'abl'`
+`msm-pipeline  /cbio/jclab/projects/fah/fah-data/munged-with-time/no-solvent/11400/run0-clone0.h5 'abl'`
 
 ## Details
 1. **Inputs**:

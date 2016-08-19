@@ -1,0 +1,36 @@
+package:
+  name: msmpipeline
+  version: !!str 0.0.1
+
+source:
+  path: ../../
+
+build:
+  preserve_egg_dir: True
+  number: 0
+
+requirements:
+  build:
+    - python
+    - setuptools
+    - numpy
+    - mdtraj
+    - matplotlib
+    - pyemma
+    - msmbuilder
+
+  run:
+    - python
+    - numpy
+    - mdtraj
+    - matplotlib
+    - pyemma
+    - msmbuilder
+
+test:
+  imports:
+    - msmpipeline
+
+about:
+  home: https://github.com/choderalab/msm-pipeline
+  license: GNU Lesser General Public License

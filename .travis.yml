@@ -1,0 +1,47 @@
+language: c
+sudo: true
+addons:
+  apt:
+    sources:
+    #- ubuntu-toolchain-r-test
+    packages:
+      - ca-certificates # needed for travis cache to work
+
+
+cache:
+  directories:
+    - $HOME/.cache/msmpipeline
+
+install:
+  - source devtools/travis-ci/install.sh
+  - export PYTHONUNBUFFERED=true
+  - export CC=gcc
+  - export CXX=g++
+  # This line may be needed to get travis cache to work
+  - echo "cacert=/etc/ssl/certs/ca-certificates.crt" >> ~/.curlrc
+
+script:
+  - conda config --add channels ${ORGNAME}
+  # Add omnia dev channels
+  - conda config --add channels https://conda.anaconda.org/omnia/label/dev
+  - conda build devtools/conda-recipe
+  - source activate _test
+  # get test data
+  - cd msmpipeline/test_data
+  - python msmpipeline/test_data/fetch_alanine.py
+  # run the thingy
+  - msm-pipeline "alanine_*.h5" "alanine" 50
+
+env:
+  matrix:
+    - python=2.7  CONDA_PY=27
+    - python=3.4  CONDA_PY=34
+    - python=3.5  CONDA_PY=35
+
+  global:
+    - PACKAGENAME="msmpipeline"
+    - ORGNAME="omnia"
+
+after_success:
+  - echo "after_success"
+  - ./devtools/travis-ci/after_success.sh
