@@ -14,9 +14,9 @@ def run_pipeline(fnames,
                  project_name = 'abl',
                  n_clusters = 1000,
                  max_tics = 50,
-                 metastability_threshold = 400, # 100ns (in units of 0.25ns)
+                 metastability_threshold = 100, # in units of nanoseconds
                  n_structures_per_macrostate = 10,
-                 in_memory = True
+                 in_memory = True,
                  ):
     '''
     Generates an MSM using sensible defaults. Computes angle-based features, turns
@@ -42,7 +42,7 @@ def run_pipeline(fnames,
       maximum number of tICA components to retain
 
     metastability_threshold : integer
-      threshold (in frames) for the metastability of a macrostate--
+      threshold (in nanoseconds) for the metastability of a macrostate--
       used to coarse-grain the resulting MSM
 
     n_structures_per_macrostate : integer
@@ -51,13 +51,15 @@ def run_pipeline(fnames,
     in_memory : bool
       whether to featurize in one go or to iterate over chunks
     '''
-
     ## PARAMETERIZE MSM
-
-    # create featurizer
+    # get first traj + topology
     traj = md.load_frame(fnames[0],0)
     top = traj.top
-
+    
+    # get timestep-- stored in units of picoseconds, converted to units of nanoseconds
+    timestep = traj.timestep / 1000
+    
+    # create featurizer
     feat = pyemma.coordinates.featurizer(top)
     feat.add_backbone_torsions(cossin = True)
     n_features = len(feat.describe())
@@ -90,7 +92,7 @@ def run_pipeline(fnames,
     np.save('{0}_tica_projection.npy'.format(project_name), Y)
 
     # estimate msm
-    msm = pyemma.msm.estimate_markov_model(dtrajs, lag = msm_lag)
+    msm = pyemma.msm.estimate_markov_model(dtrajs, lag = msm_lag, dt_traj = '{0} ns'.format(timestep))
     np.save('{0}_transmat.npy'.format(project_name), msm.P)
     print('Trace of transition matrix: {0:.3f}'.format(np.trace(msm.P)))
     print('Active count fraction: {0:.3f}'.format(msm.active_count_fraction))
@@ -151,7 +153,7 @@ def run_pipeline(fnames,
     for i, lags in enumerate(lag_sets):
         its = pyemma.msm.its(dtrajs, lags, nits=20, errors='bayes')
         plt.figure()        
-        pyemma.plots.plot_implied_timescales(its, units='ns', dt=0.25)
+        pyemma.plots.plot_implied_timescales(its, units='ns', dt=timestep)
         plt.savefig('{0}_its_{1}.png'.format(project_name, i), dpi=300)
         plt.close()
 
