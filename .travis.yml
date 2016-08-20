@@ -26,13 +26,10 @@ script:
   - conda config --add channels https://conda.anaconda.org/omnia/label/dev
   - conda build devtools/conda-recipe
   - source activate _test
-  # DEBUG: Try development version of pyemma
-  - conda remove --yes pyemma
-  - pip install https://github.com/markovmodel/PyEMMA/archive/devel.zip
-  # More DEBUG
-  - pip install .
   # get test data
   - cd msmpipeline/test_data && python fetch_alanine.py
+  # create a pyemma cache: see https://github.com/markovmodel/PyEMMA/issues/882#issuecomment-235948398
+  - python -c "import pyemma ; pyemma.config.save()"
   # run the thingy
   - msm-pipeline "alanine_*.h5" "alanine" 50
 
