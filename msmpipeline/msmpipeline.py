@@ -1,5 +1,6 @@
 import mdtraj as md
 import numpy as np
+import os
 
 import matplotlib as mpl
 mpl.use('Agg')
@@ -149,7 +150,7 @@ def run_pipeline(fnames,
 
     for i, lags in enumerate(lag_sets):
         its = pyemma.msm.its(dtrajs, lags, nits=20, errors='bayes')
-        plt.figure()
+        plt.figure()        
         pyemma.plots.plot_implied_timescales(its, units='ns', dt=0.25)
         plt.savefig('{0}_its_{1}.png'.format(project_name, i), dpi=300)
         plt.close()
