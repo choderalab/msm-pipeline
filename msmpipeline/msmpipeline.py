@@ -150,7 +150,7 @@ def run_pipeline(fnames,
 
     for i, lags in enumerate(lag_sets):
         its = pyemma.msm.its(dtrajs, lags, nits=20, errors='bayes')
-        plt.figure()
+        plt.figure()        
         pyemma.plots.plot_implied_timescales(its, units='ns', dt=0.25)
         plt.savefig('{0}_its_{1}.png'.format(project_name, i), dpi=300)
         plt.close()
@@ -178,11 +178,8 @@ def main():
 
     def get_filenames(path_to_trajs):
         from glob import glob
-        relative_filenames = glob(path_to_trajs)
-        # Convert filenames to absolute paths.
-        absolute_filenames = [ os.path.abspath(filename) for filename in relative_filenames ]
-
-        return absolute_filenames
+        filenames = glob(path_to_trajs)
+        return filenames
 
     print(path_to_trajs)
     fnames = get_filenames(path_to_trajs)
