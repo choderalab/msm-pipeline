@@ -27,8 +27,7 @@ script:
   - conda build devtools/conda-recipe
   - source activate _test
   # get test data
-  - cd msmpipeline/test_data
-  - python msmpipeline/test_data/fetch_alanine.py
+  - cd msmpipeline/test_data && python fetch_alanine.py
   # run the thingy
   - msm-pipeline "alanine_*.h5" "alanine" 50
 
