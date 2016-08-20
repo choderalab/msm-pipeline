@@ -26,6 +26,9 @@ script:
   - conda config --add channels https://conda.anaconda.org/omnia/label/dev
   - conda build devtools/conda-recipe
   - source activate _test
+  # DEBUG: Try development version of pyemma
+  - conda remove --yes pyemma
+  - pip install https://github.com/markovmodel/PyEMMA/archive/devel.zip
   # get test data
   - cd msmpipeline/test_data && python fetch_alanine.py
   # run the thingy
