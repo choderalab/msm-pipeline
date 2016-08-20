@@ -29,6 +29,7 @@ script:
   # DEBUG: Try development version of pyemma
   - conda remove --yes pyemma
   - pip install https://github.com/markovmodel/PyEMMA/archive/devel.zip
+  - pip install .
   # get test data
   - cd msmpipeline/test_data && python fetch_alanine.py
   # run the thingy
