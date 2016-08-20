@@ -1,5 +1,6 @@
 import mdtraj as md
 import numpy as np
+import os
 
 import matplotlib as mpl
 mpl.use('Agg')
@@ -177,8 +178,11 @@ def main():
 
     def get_filenames(path_to_trajs):
         from glob import glob
-        filenames = glob(path_to_trajs)
-        return filenames
+        relative_filenames = glob(path_to_trajs)
+        # Convert filenames to absolute paths.
+        absolute_filenames = [ os.path.abspath(filename) for filename in relative_filenames ]
+
+        return absolute_filenames
 
     print(path_to_trajs)
     fnames = get_filenames(path_to_trajs)

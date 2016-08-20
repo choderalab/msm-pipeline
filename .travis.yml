@@ -1,5 +1,5 @@
 language: c
-sudo: true
+sudo: false
 addons:
   apt:
     sources:
@@ -28,6 +28,10 @@ script:
   - source activate _test
   # get test data
   - cd msmpipeline/test_data && python fetch_alanine.py
+  # DEBUG
+  - pwd
+  - ls -l
+  - ls -ltr /
   # run the thingy
   - msm-pipeline "alanine_*.h5" "alanine" 50
 
