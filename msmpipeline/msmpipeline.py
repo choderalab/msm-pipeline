@@ -53,7 +53,7 @@ def run_pipeline(fnames,
     '''
     ## PARAMETERIZE MSM
     # get first traj + topology
-    traj = md.load_frame(fnames[:2],0)
+    traj = md.load(fnames[0])
     top = traj.top
     
     # get timestep-- stored in units of picoseconds, converted to units of nanoseconds
