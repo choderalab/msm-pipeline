@@ -21,16 +21,21 @@ install:
   - echo "cacert=/etc/ssl/certs/ca-certificates.crt" >> ~/.curlrc
 
 script:
+  # Create a test environment
+  - conda create --yes -n test python=$python
+  # Activate the test environment
+  - source activate test
+  # Add org channel
   - conda config --add channels ${ORGNAME}
   # Add omnia dev channels
   - conda config --add channels https://conda.anaconda.org/omnia/label/dev
+  # Build the recipe
   - conda build devtools/conda-recipe
-  - source activate _test
-  # get test data
+  # Get test data
   - cd msmpipeline/test_data && python fetch_alanine.py
-  # create a pyemma cache: see https://github.com/markovmodel/PyEMMA/issues/882#issuecomment-235948398
+  # Create a pyemma cache: see https://github.com/markovmodel/PyEMMA/issues/882#issuecomment-235948398
   - python -c "import pyemma ; pyemma.config.save()"
-  # run the thingy
+  # Run the test
   - msm-pipeline "alanine_*.h5" "alanine" 50
 
 env:
