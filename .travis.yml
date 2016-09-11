@@ -31,6 +31,8 @@ script:
   - conda config --add channels https://conda.anaconda.org/omnia/label/dev
   # Build the recipe
   - conda build devtools/conda-recipe
+  # Install the locally-built package
+  - conda install --yes --use-local msmpipeline
   # Get test data
   - cd msmpipeline/test_data && python fetch_alanine.py
   # Create a pyemma cache: see https://github.com/markovmodel/PyEMMA/issues/882#issuecomment-235948398
