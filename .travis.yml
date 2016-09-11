@@ -38,7 +38,7 @@ script:
   # Create a pyemma cache: see https://github.com/markovmodel/PyEMMA/issues/882#issuecomment-235948398
   - python -c "import pyemma ; pyemma.config.save()"
   # Run the test
-  - msm-pipeline "alanine_*.h5" "alanine" 50
+  - msm-pipeline --trajectories "alanine_*.h5" --name "alanine" --nclusters 50 --features backbone-dihedrals
 
 env:
   matrix:
