@@ -17,6 +17,7 @@ def run_pipeline(fnames,
                  metastability_threshold = 100, # in units of nanoseconds
                  n_structures_per_macrostate = 10,
                  in_memory = True,
+                 max_n_macrostates = 20,
                  ):
     '''
     Generates an MSM using sensible defaults. Computes angle-based features, turns
@@ -50,6 +51,9 @@ def run_pipeline(fnames,
 
     in_memory : bool
       whether to featurize in one go or to iterate over chunks
+      
+    max_n_macrostates : int
+      override estimated n_macrostates if it exceeds max_n_macrostates
     '''
     ## PARAMETERIZE MSM
     # get first traj + topology
@@ -111,16 +115,25 @@ def run_pipeline(fnames,
     elif n_macrostates > msm.nstates:
         print("Huh? Somehow the MSM had more timescales than states.")
         n_macrostates = msm.nstates
-
-
+   
+    # ignore this estimate if it exceeds max_n_macrostates
+    if n_macrostates > max_n_macrostates:
+        print("Estimated n_macrostates exceeds max_n_macrostates, reverting to {0}".format(max_n_macrostates))
+        n_macrostates = max_n_macrostates
+        
     # coarse-grain
-    hmm = msm.coarse_grain(n_macrostates)
+    hmm = pyemma.msm.estimate_hidden_markov_model(dtrajs, n_macrostates, msm_lag, maxit=1)
 
     # get indices
     indices = hmm.sample_by_observation_probabilities(n_structures_per_macrostate)
 
     # write PDBs
     pyemma.coordinates.save_trajs(source, indices, prefix=project_name, fmt = 'pdb')
+    
+    # write macrostate free energies
+    f_i = -np.log(hmm.stationary_distribution)
+    f_i -= f_i.min()
+    np.save('{0}_macrostate_free_energies.npy'.format(project_name), f_i)
 
     ## PLOT DIAGNOSTICS
 
