@@ -151,7 +151,7 @@ def run_pipeline(fnames,
     eigs = tica.eigenvalues
     plt.figure()
     plt.plot(np.cumsum(eigs ** 2))
-    plt.vlines(dim, 0, np.cumsum(eigs ** 2)[dim])
+    plt.vlines(dim, 0, np.sum((eigs ** 2)[:dim]))
     plt.xlabel('# tICA eigenvalues')
     plt.ylabel('Cumulative sum of tICA eigenvalues squared')
     plt.title('Cumulative "kinetic variance" explained')
