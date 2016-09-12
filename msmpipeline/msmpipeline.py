@@ -57,7 +57,7 @@ def run_pipeline(fnames,
       override estimated n_macrostates if it exceeds max_n_macrostates
 
     feature_selection : str, optional, default = 'backbone-dihedrals'
-      choice of features: ['backbone-dihedrals']
+      choice of features: ['backbone-dihedrals', 'residue-mindist']
     '''
     ## PARAMETERIZE MSM
     # get first traj + topology
@@ -71,13 +71,16 @@ def run_pipeline(fnames,
     feat = pyemma.coordinates.featurizer(top)
     if feature_selection == 'backbone-dihedrals':
         feat.add_backbone_torsions(cossin = True)
+    elif feature_selection == 'residue-mindist':
+        from contact_features import find_respairs_that_changed
+        scheme = 'closest'
+        respairs_that_changed = find_respairs_that_changed(fnames, scheme=scheme)
+        feat.add_residue_mindist(residue_pairs=respairs_that_changed, scheme=scheme)
     else:
         raise Exception("Feature choice '%s' unknown." % feature_selection)
     n_features = len(feat.describe())
 
     dim = min(n_features, max_tics)
-
-    torsions = feat.active_features[0].angle_indexes
 
     # do featurization + tICA
     source = pyemma.coordinates.source(fnames, features = feat)
@@ -148,6 +151,7 @@ def run_pipeline(fnames,
     eigs = tica.eigenvalues
     plt.figure()
     plt.plot(np.cumsum(eigs ** 2))
+    plt.vlines(dim, 0, np.cumsum(eigs ** 2)[dim])
     plt.xlabel('# tICA eigenvalues')
     plt.ylabel('Cumulative sum of tICA eigenvalues squared')
     plt.title('Cumulative "kinetic variance" explained')
@@ -194,11 +198,11 @@ def main():
     parser.add_option("-t", "--trajectories", dest="path_to_trajs", type="string",
                       help="path to trajectories (must be quoted if wildcards are used)")
     parser.add_option("-n", "--name", dest="project_name", type="string",
-                      help="don't print status messages to stdout", default="abl")
+                      help="project name (used in figure filenames)", default="abl")
     parser.add_option("-c", "--nclusters", dest="n_clusters", type="int",
                       help="number of clusters", default=1000)
     parser.add_option("-f", "--features", dest="feature_selection", type="string",
-                      help="choice of features: ['backbone-dihedrals']", default="backbone-dihedrals")
+                      help="choice of features: ['backbone-dihedrals', 'residue-mindist']", default="backbone-dihedrals")
 
     (options, args) = parser.parse_args()
 
