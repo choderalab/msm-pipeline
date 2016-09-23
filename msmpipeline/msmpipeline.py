@@ -169,6 +169,20 @@ def run_pipeline(fnames,
     plt.savefig('{0}_macrostate_free_energies.png'.format(project_name), dpi=300)
     plt.close()
 
+    # implied timescales at a fixed lag
+    threshold = 100.0 # in units of nanoseconds
+    timescales = msm.timescales()*timestep
+    timescales_above_threshold = timescales[timescales > threshold]
+    
+    if len(timescales_above_threshold) > 0:
+        plt.figure()
+        plt.plot(timescales_above_threshold,'.')
+        plt.yscale('log')
+        plt.xlabel('Timescale index')
+        plt.ylabel('Implied timescale (ns)')
+        plt.savefig('{0}_timescales_above_threshold.png'.format(project_name), dpi=300)
+        plt.close()
+
     # implied timescales
     lag_sets = [range(1, 101),
                 range(1, 1001)[::10]
