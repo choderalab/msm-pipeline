@@ -18,6 +18,7 @@ def run_pipeline(fnames,
                  n_structures_per_macrostate = 10,
                  in_memory = True,
                  max_n_macrostates = 20,
+                 feature_selection = 'backbone-dihedrals',
                  ):
     '''
     Generates an MSM using sensible defaults. Computes angle-based features, turns
@@ -51,26 +52,35 @@ def run_pipeline(fnames,
 
     in_memory : bool
       whether to featurize in one go or to iterate over chunks
-      
+
     max_n_macrostates : int
       override estimated n_macrostates if it exceeds max_n_macrostates
+
+    feature_selection : str, optional, default = 'backbone-dihedrals'
+      choice of features: ['backbone-dihedrals', 'residue-mindist']
     '''
     ## PARAMETERIZE MSM
     # get first traj + topology
     traj = md.load(fnames[0])
     top = traj.top
-    
+
     # get timestep-- stored in units of picoseconds, converted to units of nanoseconds
     timestep = traj.timestep / 1000
-    
+
     # create featurizer
     feat = pyemma.coordinates.featurizer(top)
-    feat.add_backbone_torsions(cossin = True)
+    if feature_selection == 'backbone-dihedrals':
+        feat.add_backbone_torsions(cossin = True)
+    elif feature_selection == 'residue-mindist':
+        from contact_features import find_respairs_that_changed
+        scheme = 'closest'
+        respairs_that_changed = find_respairs_that_changed(fnames, scheme=scheme)
+        feat.add_residue_mindist(residue_pairs=respairs_that_changed, scheme=scheme)
+    else:
+        raise Exception("Feature choice '%s' unknown." % feature_selection)
     n_features = len(feat.describe())
 
     dim = min(n_features, max_tics)
-
-    torsions = feat.active_features[0].angle_indexes
 
     # do featurization + tICA
     source = pyemma.coordinates.source(fnames, features = feat)
@@ -115,12 +125,12 @@ def run_pipeline(fnames,
     elif n_macrostates > msm.nstates:
         print("Huh? Somehow the MSM had more timescales than states.")
         n_macrostates = msm.nstates
-   
+
     # ignore this estimate if it exceeds max_n_macrostates
     if n_macrostates > max_n_macrostates:
         print("Estimated n_macrostates exceeds max_n_macrostates, reverting to {0}".format(max_n_macrostates))
         n_macrostates = max_n_macrostates
-        
+
     # coarse-grain
     hmm = pyemma.msm.estimate_hidden_markov_model(dtrajs, n_macrostates, msm_lag, maxit=1)
 
@@ -129,7 +139,7 @@ def run_pipeline(fnames,
 
     # write PDBs
     pyemma.coordinates.save_trajs(source, indices, prefix=project_name, fmt = 'pdb')
-    
+
     # write macrostate free energies
     f_i = -np.log(hmm.stationary_distribution)
     f_i -= f_i.min()
@@ -141,6 +151,7 @@ def run_pipeline(fnames,
     eigs = tica.eigenvalues
     plt.figure()
     plt.plot(np.cumsum(eigs ** 2))
+    plt.vlines(dim, 0, np.sum((eigs ** 2)[:dim]))
     plt.xlabel('# tICA eigenvalues')
     plt.ylabel('Cumulative sum of tICA eigenvalues squared')
     plt.title('Cumulative "kinetic variance" explained')
@@ -165,7 +176,7 @@ def run_pipeline(fnames,
 
     for i, lags in enumerate(lag_sets):
         its = pyemma.msm.its(dtrajs, lags, nits=20, errors='bayes')
-        plt.figure()        
+        plt.figure()
         pyemma.plots.plot_implied_timescales(its, units='ns', dt=timestep)
         plt.savefig('{0}_its_{1}.png'.format(project_name, i), dpi=300)
         plt.close()
@@ -182,26 +193,30 @@ def run_pipeline(fnames,
     plt.close()
 
 def main():
-    import sys
-    path_to_trajs = sys.argv[1]
-    project_name = 'abl'
-    n_clusters = 1000
-    if len(sys.argv) > 2:
-        project_name = sys.argv[2]
-    if len(sys.argv) > 3:
-        n_clusters = int(sys.argv[3])
+    from optparse import OptionParser
+    parser = OptionParser()
+    parser.add_option("-t", "--trajectories", dest="path_to_trajs", type="string",
+                      help="path to trajectories (must be quoted if wildcards are used)")
+    parser.add_option("-n", "--name", dest="project_name", type="string",
+                      help="project name (used in figure filenames)", default="abl")
+    parser.add_option("-c", "--nclusters", dest="n_clusters", type="int",
+                      help="number of clusters", default=1000)
+    parser.add_option("-f", "--features", dest="feature_selection", type="string",
+                      help="choice of features: ['backbone-dihedrals', 'residue-mindist']", default="backbone-dihedrals")
+
+    (options, args) = parser.parse_args()
 
     def get_filenames(path_to_trajs):
         from glob import glob
         filenames = glob(path_to_trajs)
         return filenames
 
-    print(path_to_trajs)
-    fnames = get_filenames(path_to_trajs)
+    print(options.path_to_trajs)
+    fnames = get_filenames(options.path_to_trajs)
     print(fnames)
 
     print('Running pipeline')
-    run_pipeline(fnames, project_name = project_name, n_clusters = n_clusters)
+    run_pipeline(fnames, project_name = options.project_name, n_clusters = options.n_clusters, feature_selection = options.feature_selection)
 
 if __name__ == '__main__':
     main()
