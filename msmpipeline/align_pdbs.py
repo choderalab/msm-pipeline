@@ -121,7 +121,8 @@ def compute_and_plot_rmsd_matrix(f_i, all_structures, project_name):
         rmsd_matrix[i] = md.rmsd(structures, structures[i])
 
     # draw blocks around each state
-    ticks = np.cumsum(map(len, all_structures)) - 1 # I think there was originally an off-by-one error here, and I think -1 solves it?
+    lengths = [len(s) for s in all_structures]
+    ticks = np.cumsum(lengths) - 1 # I think there was originally an off-by-one error here, and I think -1 solves it?
 
     # plot rmsd_matrix
     plt.figure()
