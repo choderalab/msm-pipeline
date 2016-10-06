@@ -39,7 +39,7 @@ script:
   - python -c "import pyemma ; pyemma.config.save()"
   # Run the tests
   - msm-pipeline --trajectories "alanine_*.h5" --name "alanine" --nclusters 50 --features backbone-dihedrals
-  - align-pdbs --path_to_pdbs "alanine_*.pdb" --path_to_free_energies "alanine_macrostate_free_energies.npy" --name "alanine"
+  - align-pdbs --path_to_pdbs "alanine*.pdb" --path_to_free_energies "alanine_macrostate_free_energies.npy" --name "alanine"
 
 env:
   matrix:
