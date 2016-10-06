@@ -141,9 +141,9 @@ def main():
     # parse paths and project_name from command line
     from optparse import OptionParser
     parser = OptionParser()
-    parser.add_option("-t", "--path_to_pdbs", dest="path_to_pdbs", type="string",
+    parser.add_option("-p", "--path_to_pdbs", dest="path_to_pdbs", type="string",
                       help="path to PDBs (must be quoted if wildcards are used)")
-    parser.add_option("-n", "--path_to_free_energies", dest="path_to_free_energies", type="string",
+    parser.add_option("-f", "--path_to_free_energies", dest="path_to_free_energies", type="string",
                       help="path to free energies")
     parser.add_option("-n", "--name", dest="project_name", type="string",
                       help="project name (used in figure filenames)", default="abl")
