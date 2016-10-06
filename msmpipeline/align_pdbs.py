@@ -96,7 +96,7 @@ def align_and_save_pdbs(f_i, all_structures, project_name):
     sorted_trajs = [sort_trajectory(traj) for traj in all_structures]
 
     # align each "generator" to the global reference
-    references = [md.superpose(traj[0], reference) for traj in sorted_trajs]
+    references = [traj[0].superpose(reference) for traj in sorted_trajs]
 
     # for each collection of macrostate samples
     for i in range(len(sorted_trajs)):
