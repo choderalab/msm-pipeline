@@ -38,7 +38,7 @@ def load_structures_and_free_energies(path_to_pdbs, path_to_free_energies):
     fnames = glob(path_to_pdbs)
 
     # get list of trajectories
-    all_structures_unsorted = map(md.load, fnames)
+    all_structures_unsorted = [md.load(fname) for fname in fnames]
 
     # load free energies
     f_i = np.load(path_to_free_energies)
