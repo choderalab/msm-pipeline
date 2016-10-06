@@ -11,7 +11,7 @@ setup(name='msmpipeline',
       entry_points={
           'console_scripts': [
               'msm-pipeline = msmpipeline:main',
-              'align-pdbs = align_pdbs:main'
+              'align-pdbs = msmpipeline.align_pdbs:main'
           ]
       },
       zip_safe=False)
