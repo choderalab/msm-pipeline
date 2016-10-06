@@ -1,7 +1,6 @@
 '''
 
-Given PDB outputs from this version of `msm-pipeline`, align them all
- to the minimum free energy structure and save them again.
+Given PDBs sampled from macrostates, align and save them
 
 '''
 
@@ -49,11 +48,31 @@ def load_structures_and_free_energies(path_to_pdbs, path_to_free_energies):
     return f_i, all_structures
 
 
+def sort_trajectory(traj):
+    '''
+
+    Given a trajectory, find the frame with the minimum mean RMSD to all other
+    frames in the trajectory, and sort all remaining frames by their distance to that frame
+
+    Parameters
+    ----------
+    traj : mdtraj.Trajectory
+
+    Returns
+    -------
+    sorted_traj : mdtraj.Trajectory
+
+    '''
+    rmsds = [md.rmsd(traj, traj[i]) for i in range(len(traj))]
+    min_mean_rmsd = np.argmin([np.mean(r) for r in rmsds])
+    return traj[np.argsort(rmsds[min_mean_rmsd])]
+
 def align_and_save_pdbs(f_i, all_structures, project_name):
     '''
 
-    Aligns all structures to one of the configurations sampled from the minimum
-    free energy state, and saves PDBs
+    Aligns all "generators" to the "generator" of the minimum free energy state.
+    Aligns all configurations within each state to its "generator."
+    Saves PDBs.
 
     Parameters
     ----------
@@ -69,13 +88,20 @@ def align_and_save_pdbs(f_i, all_structures, project_name):
 
     '''
 
-    # reference structure is the first configuration sampled in macrostate 0
-    reference = all_structures[0][0]
+    # global reference structure is the configuration sampled in macrostate 0
+    # with minimum mean RMSD to all other configurations sampled from macrostate 0
+    reference = sort_trajectory(all_structures[0])[0]
+
+    # within each collection of samples from a macrostate, sort by distance to their "generator"
+    sorted_trajs = [sort_trajectory(traj) for traj in all_structures]
+
+    # align each "generator" to the global reference
+    references = [md.superpose(traj[0], reference) for traj in sorted_trajs]
 
     # for each collection of macrostate samples
-    for i in range(len(all_structures)):
-        # align to reference
-        aligned = all_structures[i].superpose(reference)
+    for i in range(len(sorted_trajs)):
+        # align to macrostate reference
+        aligned = sorted_trajs[i].superpose(references[i])
 
         # filename will look like 'abl_aligned_delta_G_3-04', where we replaced the decimal point with a hyphen
         fname = '{project_name}_aligned_delta_G_{free_energy:.3f}'.format(project_name=project_name,
