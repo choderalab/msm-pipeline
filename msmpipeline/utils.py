@@ -1,16 +1,10 @@
-'''
-
-Partial clone of the VMD plug-ins `cispeptide` and `chirality`
-
-'''
+"""Partial clone of the VMD plug-ins `cispeptide` and `chirality` """
 
 import mdtraj as md
 import numpy as np
 
 def find_peptide_bonds(top):
-    '''
-
-    Find all peptide bonds in a topology
+    """Find all peptide bonds in a topology
 
     Parameters
     ----------
@@ -29,8 +23,7 @@ def find_peptide_bonds(top):
     [1] Stereochemical errors and their implications for molecular dynamics simulations.
         Schriener et al., 2011. BMC Bioinformatics. DOI: 10.1186/1471-2105-12-190
         http://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-12-190
-
-    '''
+    """
 
     bond_indices = [sorted((bond[0].index, bond[1].index)) for bond in top.bonds]
 
@@ -57,18 +50,17 @@ def find_peptide_bonds(top):
     return peptide_bonds, residues
 
 def check_cispeptide_bond(traj, dihedral_cutoff = 85):
-    '''
-    Given a trajectory, check every peptide bond in every frame.
+    """Given a trajectory, check every peptide bond in every frame.
 
-    Return a boolean array of shape len(traj), n_peptide_bonds
+    Return a boolean array of shape=(len(traj), n_peptide_bonds)
 
-    If any of the peptide bonds appear to be cis-peptide bonds, also print a warning.
+    Print a warning if any cis-peptide bonds are found
 
     Parameters
     ----------
     traj : mdtraj.Trajectory
 
-    dihed_cutoff : default 85
+    dihedral_cutoff : default 85
         Dihedral angle cutoff, in degrees
 
     Returns
@@ -81,12 +73,12 @@ def check_cispeptide_bond(traj, dihedral_cutoff = 85):
     [1] Stereochemical errors and their implications for molecular dynamics simulations.
         Schriener et al., 2011. BMC Bioinformatics. DOI: 10.1186/1471-2105-12-190
         http://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-12-190
-    '''
+    """
 
     indices, residues = find_peptide_bonds(traj.top)
     angles = md.compute_dihedrals(traj, indices)
-    in_radians = angles * 180 / np.pi
-    problems = in_radians > dihedral_cutoff
+    in_degrees = angles * 180 / np.pi
+    problems = in_degrees > dihedral_cutoff
 
     if np.sum(problems) > 0:
         print('Problems in {0} frames!'.format(sum(problems.sum(1) != 0)))
@@ -94,28 +86,101 @@ def check_cispeptide_bond(traj, dihedral_cutoff = 85):
 
     return problems
 
-
-# to-do: check chirality
-# approach
-# 1. Define collections of chiral atoms for each residue
-# 2. Get a list of (id0, id1, id2, id3, (optionally, idH)) tuples
-# 3. For each of these tuples,
-    # - Compute improper torsion between id0, id1, id2, id3
-    # - If there's an H, compute another improper torsion between idH, id1, id2, id3
-    # - If either of these impropers is < 0, then it's a problem!
-def get_chiral_atoms(residue_name):
-    '''
+def define_chiral_centers():
+    """Constructs a dictionary of the chiral centers of each amino acid
 
     Returns
     -------
+    chiral_dict : dictionary
+        maps three-letter residue names to lists of 4-tuples of atom *names*
 
-    '''
+    Notes / to-do's
+    ---------------
+    - to-do: find an independent reference here (modified this from
+      the definition of chiral centers from lines 53-63 in chirality.tcl in VMD)
+    - to-do: check correctness
 
-    raise NotImplementedError()
-    #chiral_atoms = []
-    #AAs = 'ALA ARG ASN ASP CYS GLN GLU HSP HSD HIP HIE HID HIS ILE LEU LYS MET PHE PRO SER THR TRP TYR VAL'.split()
-    #if residue_name in AAs:
-     #   atoms = 'HA CA N C CB'.split()
-     #   chiral_atoms.append()
+    References
+    ----------
+    [1] Stereochemical errors and their implications for molecular dynamics simulations.
+        Schriener et al., 2011. BMC Bioinformatics. DOI: 10.1186/1471-2105-12-190
+        http://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-12-190
+    """
+    chiral_dict = dict()
+    AAs = 'ALA ARG ASN ASP CYS GLN GLU HIS ILE LEU LYS MET PHE PRO SER THR TRP TYR VAL'.split()
+    for residue_name in AAs:
+        chiral_dict[residue_name] = [tuple('HA N C CB'.split()),
+                                     tuple('CA N C CB'.split())]
 
-    #return chiral_atoms
+        if residue_name in 'THR ILE'.split():
+            chiral_dict[residue_name].append(tuple('HB CA OG1 CG2'.split()))
+            chiral_dict[residue_name].append(tuple('CB CA OG1 CG2'.split()))
+
+    return chiral_dict
+
+
+def get_chiral_atoms(top):
+    """Given a topology, return a list of 4-tuples of chiral atom indices
+
+    We'll then compute dihedral angles using each 4-tuple, and check if any are below 0
+
+    Parameters
+    ----------
+    top : mdtraj.topology
+
+    Returns
+    -------
+    chiral_atoms : list of 4-tuples
+    """
+
+    # dictionary mapping from 3-letter residue name to list of 4-tuples of atom *names*
+    chiral_dict = define_chiral_centers()
+
+    # a list containing 4-tuples of atom *indices* within top, defining torsions we'll check
+    chiral_atoms = []
+
+    for residue in top.residues:
+        # if this is a residue that contains chiral positions
+        if residue.name in chiral_dict.keys():
+
+            # get all the atoms in the current residue
+            atoms = [a for a in residue.atoms]
+            atom_names = [a.name for a in atoms]
+
+            # for each quartet, retrieve the corresponding atom indices within top
+            for name_quartet in chiral_dict[residue.name]:
+                index_quartet = []
+                for name in name_quartet:
+                    current_atom = atoms[atom_names.index(name)]
+                    index_quartet.append(current_atom.index)
+                chiral_atoms.append(tuple(index_quartet))
+
+    return chiral_atoms
+
+def check_chirality(traj, threshold = 0):
+    """Check whether each chiral amino acid is in the L-configuration
+    at each frame in the trajectory.
+
+    Parameters
+    ----------
+    traj : mdtraj.trajectory
+    threshold : angle (in degrees)
+        angles below this threshold will be taken as errors
+
+    Returns
+    -------
+    chiral_atoms : list of 4-tuples
+    errors : numpy.ndarray, shape=(len(traj), len(chiral_atoms)), dtype=bool
+        errors[i,j] means there is a chirality error in frame i, quartet j
+
+    References
+    ----------
+    [1] Stereochemical errors and their implications for molecular dynamics simulations.
+        Schriener et al., 2011. BMC Bioinformatics. DOI: 10.1186/1471-2105-12-190
+        http://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-12-190
+    """
+    chiral_atoms = get_chiral_atoms(traj.top)
+    dihedrals = md.compute_dihedrals(traj, chiral_atoms)
+    in_degrees = dihedrals * 180 / np.pi
+    errors = in_degrees < threshold
+    return chiral_atoms, errors
