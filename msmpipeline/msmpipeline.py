@@ -84,7 +84,6 @@ def run_pipeline(fnames,
 
     # do featurization + tICA
     source = pyemma.coordinates.source(fnames, features = feat)
-    source_full = pyemma.coordinates.source(fnames, top=top)
 
     if in_memory:
         X = source.get_output()
@@ -100,6 +99,10 @@ def run_pipeline(fnames,
     # discretize
     kmeans = pyemma.coordinates.cluster_mini_batch_kmeans(Y, k = n_clusters, max_iter = 1000)
     dtrajs = [dtraj.flatten() for dtraj in kmeans.get_output()]
+    
+    # check that len(dtrajs[i]) == source.trajectory_lengths()[i] for all i in range(len(dtrajs))
+    if not np.array_equal(source.trajectory_lengths(), [len(dtraj) for dtraj in dtrajs]):
+        print('Something went wrong: the lengths of the trajectory files have become misaligned from the lengths of their corresponding discrete trajectories!')
 
     # save outputs
     np.save('{0}_dtrajs.npy'.format(project_name), dtrajs)
