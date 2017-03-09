@@ -57,7 +57,7 @@ def run_pipeline(fnames,
       override estimated n_macrostates if it exceeds max_n_macrostates
 
     feature_selection : str, optional, default = 'backbone-dihedrals'
-      choice of features: ['backbone-dihedrals', 'residue-mindist']
+      choice of features: ['backbone-dihedrals', 'residue-mindist', 'SASA']
     '''
     ## PARAMETERIZE MSM
     # get first traj + topology
@@ -76,6 +76,8 @@ def run_pipeline(fnames,
         scheme = 'closest'
         respairs_that_changed = find_respairs_that_changed(fnames, scheme=scheme)
         feat.add_residue_mindist(residue_pairs=respairs_that_changed, scheme=scheme)
+    elif feature_selection == 'SASA':
+        feat.add_custom_func(md.shrake_rupley,top.n_atoms)
     else:
         raise Exception("Feature choice '%s' unknown." % feature_selection)
     n_features = len(feat.describe())
@@ -216,7 +218,7 @@ def main():
     parser.add_option("-c", "--nclusters", dest="n_clusters", type="int",
                       help="number of clusters", default=1000)
     parser.add_option("-f", "--features", dest="feature_selection", type="string",
-                      help="choice of features: ['backbone-dihedrals', 'residue-mindist']", default="backbone-dihedrals")
+                      help="choice of features: ['backbone-dihedrals', 'residue-mindist','SASA']", default="backbone-dihedrals")
 
     (options, args) = parser.parse_args()
 
