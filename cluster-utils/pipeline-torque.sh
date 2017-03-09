@@ -46,4 +46,4 @@ cd $PBS_O_WORKDIR
 source activate py27
 
 # Launch job.
-python pipeline.py '/cbio//cbio/jclab/home/albaness/trajectories/10493'
+msm-pipeline --trajectories "/cbio/jclab/home/albaness/trajectories/10493/*.h5" --name "SKA-10493" --nclusters 50
