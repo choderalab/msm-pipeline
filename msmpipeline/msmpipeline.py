@@ -77,7 +77,7 @@ def run_pipeline(fnames,
         respairs_that_changed = find_respairs_that_changed(fnames, scheme=scheme)
         feat.add_residue_mindist(residue_pairs=respairs_that_changed, scheme=scheme)
     elif feature_selection == 'SASA':
-        feat.add_custom_func(md.shrake_rupley,top.n_atoms)
+        feat.add_custom_func(md.shrake_rupley,top.n_residues,mode='residue')
     else:
         raise Exception("Feature choice '%s' unknown." % feature_selection)
     n_features = len(feat.describe())
