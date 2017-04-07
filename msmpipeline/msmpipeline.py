@@ -15,6 +15,7 @@ def run_pipeline(fnames,
                  n_clusters = 1000,
                  max_tics = 50,
                  metastability_threshold = 100, # in units of nanoseconds
+                 hmm_iter = 1,
                  n_structures_per_macrostate = 10,
                  in_memory = True,
                  max_n_macrostates = 20,
@@ -47,6 +48,9 @@ def run_pipeline(fnames,
       threshold (in nanoseconds) for the metastability of a macrostate--
       used to coarse-grain the resulting MSM
 
+    hmm_iter : integer
+      maxit for hmm coarse-graining
+
     n_structures_per_macrostate : integer
       how many configurations to write to PDB per macrostate
 
@@ -57,7 +61,7 @@ def run_pipeline(fnames,
       override estimated n_macrostates if it exceeds max_n_macrostates
 
     feature_selection : str, optional, default = 'backbone-dihedrals'
-      choice of features: ['backbone-dihedrals', 'residue-mindist']
+      choice of features: ['backbone-dihedrals', 'residue-mindist', 'SASA']
     '''
     ## PARAMETERIZE MSM
     # get first traj + topology
@@ -76,6 +80,8 @@ def run_pipeline(fnames,
         scheme = 'closest'
         respairs_that_changed = find_respairs_that_changed(fnames, scheme=scheme)
         feat.add_residue_mindist(residue_pairs=respairs_that_changed, scheme=scheme)
+    elif feature_selection == 'SASA':
+        feat.add_custom_func(md.shrake_rupley,top.n_residues,mode='residue')
     else:
         raise Exception("Feature choice '%s' unknown." % feature_selection)
     n_features = len(feat.describe())
@@ -132,7 +138,10 @@ def run_pipeline(fnames,
         n_macrostates = max_n_macrostates
 
     # coarse-grain
-    hmm = pyemma.msm.estimate_hidden_markov_model(dtrajs, n_macrostates, msm_lag, maxit=1)
+    hmm = pyemma.msm.estimate_hidden_markov_model(dtrajs, n_macrostates, msm_lag, maxit=hmm_iter) # default hmm_iter=1, be careful
+
+    #output coarse-grained transition matrix
+    np.save('{0}_coarsegrained_transmat.npy'.format(project_name), hmm.P) 
 
     # get indices
     indices = hmm.sample_by_observation_probabilities(n_structures_per_macrostate)
@@ -215,8 +224,10 @@ def main():
                       help="project name (used in figure filenames)", default="abl")
     parser.add_option("-c", "--nclusters", dest="n_clusters", type="int",
                       help="number of clusters", default=1000)
+    parser.add_option("-r", "--hmmiter", dest="hmm_iter", type="int",
+                      help="number of hmm iterations", default=1)
     parser.add_option("-f", "--features", dest="feature_selection", type="string",
-                      help="choice of features: ['backbone-dihedrals', 'residue-mindist']", default="backbone-dihedrals")
+                      help="choice of features: ['backbone-dihedrals', 'residue-mindist','SASA']", default="backbone-dihedrals")
 
     (options, args) = parser.parse_args()
 
@@ -230,7 +241,7 @@ def main():
     print(fnames)
 
     print('Running pipeline')
-    run_pipeline(fnames, project_name = options.project_name, n_clusters = options.n_clusters, feature_selection = options.feature_selection)
+    run_pipeline(fnames, project_name = options.project_name, n_clusters = options.n_clusters, hmm_iter = options.hmm_iter, feature_selection = options.feature_selection)
 
 if __name__ == '__main__':
     main()
